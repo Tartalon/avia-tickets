@@ -18,12 +18,35 @@
   margin-right: auto;
 }
 
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Header styles */
 
 .header .brand-logo {
   position: static;
 }
 
+.header .currency-select {
+  width: 120px;
+}
+
 .header .currency-select input.select-dropdown {
   margin: 0;
+  color: #fff;
+  border-bottom: none;
+}
+
+.header .currency-select input.select-dropdown:focus {
+  border-bottom: none;
+}
+
+.header .currency-select .caret {
+  fill: #fff;
+}
+
+.header .brand-logo {
+  font-size: 1.5rem;
 }
