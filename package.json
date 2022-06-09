@@ -1,33 +1,49 @@
 {
-  "name": "lesson-54-intro-webpack",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "dev": "webpack-dev-server",
-    "build": "webpack"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
-    "autoprefixer": "^9.6.1",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^8.0.6",
-    "babel-polyfill": "^6.26.0",
-    "css-loader": "^3.1.0",
-    "file-loader": "^4.1.0",
-    "html-webpack-plugin": "^3.2.0",
-    "postcss-loader": "^3.0.0",
-    "precss": "^4.0.0",
-    "style-loader": "^0.23.1",
-    "webpack": "^4.39.1",
-    "webpack-cli": "^3.3.6",
-    "webpack-dev-server": "^3.7.2"
-  },
-  "dependencies": {
-    "axios": "^0.27.2"
-  }
+	"name": "webpack-vlad",
+	"version": "1.0.0",
+	"description": "webpac vladilen",
+	"private": true,
+	"scripts": {
+		"dev": "cross-env NODE_ENV=development webpack --mode development",
+		"build": "cross-env NODE_ENV=production webpack --mode production",
+		"watch": "cross-env NODE_ENV=development webpack --mode development --watch",
+		"start": "cross-env NODE_ENV=development webpack server --open"
+	},
+	"browserslist": "> 0.25%, not dead",
+	"keywords": [
+		"js",
+		"webpack"
+	],
+	"author": "Vovka <tartalon23@gmail.com>",
+	"license": "ISC",
+	"devDependencies": {
+		"@babel/core": "^7.17.5",
+		"@babel/preset-env": "^7.16.11",
+		"@babel/preset-react": "^7.16.7",
+		"@babel/preset-typescript": "^7.16.7",
+		"babel-loader": "^8.2.3",
+		"clean-webpack-plugin": "^4.0.0",
+		"copy-webpack-plugin": "^10.2.4",
+		"cross-env": "^7.0.3",
+		"css-loader": "^6.6.0",
+		"css-minimizer-webpack-plugin": "^3.4.1",
+		"csv-loader": "^3.0.3",
+		"file-loader": "^6.2.0",
+		"html-webpack-plugin": "^5.5.0",
+		"mini-css-extract-plugin": "^2.5.3",
+		"sass": "^1.49.8",
+		"sass-loader": "^12.6.0",
+		"style-loader": "^3.3.1",
+		"terser-webpack-plugin": "^5.3.1",
+		"webpack": "^5.69.1",
+		"webpack-cli": "^4.9.2",
+		"webpack-dev-server": "^4.7.4",
+		"xml-loader": "^1.2.1"
+	},
+	"dependencies": {
+		"@babel/polyfill": "^7.12.1",
+		"normalize.css": "^8.0.1",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2"
+	}
 }

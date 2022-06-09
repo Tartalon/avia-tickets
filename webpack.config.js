@@ -1,88 +1,159 @@
+// import path from 'path';
 const path = require('path');
-const autoprefixer = require('autoprefixer');
-const precss = require('precss');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const copyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin');
+const TerserWebpackPlugin = require('terser-webpack-plugin');
+
+const isDev = process.env.NODE_ENV === 'development';
+const isProd = !isDev;
+
+const optimization = () => {
+	const config = {
+		splitChunks: {
+			chunks: 'all',
+		},
+	};
+
+	if (isProd) {
+		config.minimizer = [
+			new CssMinimizerWebpackPlugin(),
+			new TerserWebpackPlugin(),
+		];
+	}
+	return config;
+};
+
+const filename = ext => (isDev ? `[name].${ext}` : `[name].[hash].${ext}`);
+
+const babelOptions = preset => {
+	const opts = {
+		presets: ['@babel/preset-env'],
+	};
+
+	if (preset) {
+		opts.presets.push(preset);
+	}
+
+	return opts;
+};
 
 module.exports = {
-  // Итак,  чтобы вебпак начал свою работу, нужно указать главный (основной) файл, который будет включать в себя все другие необходимые файлы (модули).
-  entry: {
-    polyfill: 'babel-polyfill',
-    app: './js/app.js',
-  },
-  // Также webpack рекомендует явно указывать, в какой директории находятся исходные файлы проекта (ресурсы). Для этого следует использовать свойство context:
-  context: path.resolve(__dirname, 'src'),
-  devServer: {
-    publicPath: '/',
-    port: 9000,
-    contentBase: path.join(process.cwd(), 'dist'),
-    host: 'localhost',
-    historyApiFallback: true,
-    noInfo: false,
-    stats: 'minimal',
-    hot: true,
-  },
-  module: {
-    // Для того, чтобы трансформировать файл, используются специальные утилиты - загрузчики (loaders).
-    //Для любых настроек модуля вебпак используется поле module.
-    //Массив rules  внутри объекта module определяет список правил для загрузчиков.
-    rules: [
-      {
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-          },
-        },
-        test: /\.js$/,
-      },
-      {
-        test: /\.css$/,
-        use: [
-          {
-            loader: 'style-loader',
-          },
-          {
-            loader: 'css-loader',
+	context: path.resolve(__dirname, 'src'),
+	mode: 'development',
+	entry: {
+		main: ['@babel/polyfill', './index.jsx'],
+		analytics: './analytics.ts',
+	},
 
-            options: {
-              importLoaders: 1,
-              sourceMap: true,
-            },
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: () => [precss, autoprefixer],
-            },
-          },
-        ],
-      },
-      {
-        test: /\.(png|jpe?g|gif)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[path][name].[ext]',
-            },
-          },
-        ],
-      },
-    ],
-  },
-  // Вебпак плагины используются для настройки процесса сборки.
-  //Например, плагин для минификации кода (во время сборки код подвергается очистке и минификации).
-  //Или плагин для сборки html страницы и css кода (скрипты вставляются в html, куски css собираются в один файл).
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: 'index.html',
-    }),
-  ],
-  // Кроме entry, мы можем указать поле, куда (в какой файл) собирать конечный результат. Это свойство задаётся с помощью поля output.
-  //По умолчанию, весь результирующий код собирается в папку dist.
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].[hash].js',
-  },
-  mode: 'development',
+	output: {
+		filename: filename('js'),
+		path: path.resolve(__dirname, 'dist'),
+	},
+
+	resolve: {
+		extensions: ['.js', '.json', '.png'],
+		alias: {
+			'@': path.resolve(__dirname, 'src'),
+		},
+	},
+
+	optimization: optimization(),
+
+	devServer: {
+		port: 4200,
+		static: './src',
+		hot: isDev,
+	},
+
+	plugins: [
+		new HtmlWebpackPlugin({
+			template: './index.html',
+			inject: 'body',
+			minify: {
+				collapseWhitespace: isProd,
+			},
+		}),
+		new CleanWebpackPlugin(),
+		new copyWebpackPlugin({
+			patterns: [
+				{
+					from: path.resolve(__dirname, 'src/favicon.ico'),
+					to: path.resolve(__dirname, 'dist'),
+				},
+			],
+		}),
+		new MiniCssExtractPlugin({
+			filename: filename('css'),
+		}),
+	],
+
+	module: {
+		rules: [
+			{
+				test: /\.css$/,
+				use: [
+					isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+					'css-loader',
+				],
+			},
+
+			{
+				test: /\.scss$/,
+				use: [
+					isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+					// 'style-loader',
+					'css-loader',
+					'sass-loader',
+				],
+			},
+
+			{
+				test: /\.(png|jpg|svg|gif)$/,
+				type: 'asset/resource',
+			},
+			// {
+			// 	test: /\.(ttf|woff|woff2|eot)$/,
+			// 	use: ['file-loader'],
+			// },
+			{
+				test: /\.xml$/,
+				use: ['xml-loader'],
+			},
+
+			{
+				test: /\.csv$/,
+				use: ['csv-loader'],
+			},
+
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,
+				use: {
+					loader: 'babel-loader',
+					options: babelOptions(),
+				},
+			},
+
+			{
+				test: /\.ts$/,
+				exclude: /node_modules/,
+				use: {
+					loader: 'babel-loader',
+					options: babelOptions('@babel/preset-typescript'),
+				},
+			},
+
+			{
+				test: /\.jsx$/,
+				exclude: /node_modules/,
+				use: {
+					loader: 'babel-loader',
+					options: babelOptions('@babel/preset-react'),
+				},
+			},
+		],
+	},
 };
